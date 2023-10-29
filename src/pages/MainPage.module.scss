@@ -1,0 +1,8 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 100px 0;
+  background-image: radial-gradient(150% 70% at 100% -3%,var(--accent-color-1) 0, var( --accent-color-2) 30%, var(--main-color-1) 100%);
+  background-color: var(--main-color-1);
+}
