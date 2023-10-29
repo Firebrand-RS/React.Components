@@ -8,7 +8,11 @@ export class Button extends React.Component<ButtonProps> {
     const { type = 'button', ...props } = this.props;
 
     return (
-      <button {...props} className={classes.button} type={type}>
+      <button
+        {...props}
+        className={[classes.button, props.className].join(' ')}
+        type={type}
+      >
         {this.props.children}
       </button>
     );

@@ -8,8 +8,11 @@ import {
   MovieDTOWithGenreNames,
   TmdbMovieGenre,
 } from '../../../shared/ApiClient/TmdbApiClient/types';
-import noPosterImage from '../../../shared/assets/no-poster-imiage.png';
 import { Loader } from '../../../shared/ui/Loader/Loader';
+import { ErrorBoundary } from '../../../shared/ui/ErrorBoundary/ErrorBoundary';
+import { BugButton } from '../../../shared/ui/BugButton/BugButton';
+
+import noPosterImage from '../../../shared/assets/no-poster-imiage.png';
 
 export interface SimpleMovieData {
   id: number;
@@ -24,6 +27,7 @@ interface TMDBMovieSearcherState {
   page: number;
   movieTitles: SimpleMovieData[];
   isLoading: boolean;
+  error: Error | null;
 }
 
 export class TMDBMovieSearcher extends React.Component<
@@ -39,22 +43,28 @@ export class TMDBMovieSearcher extends React.Component<
   constructor(props: TMDBMovieSearcherProps) {
     super(props);
     this.handleSearch = this.handleSearch.bind(this);
+    this.handleResetError = this.handleResetError.bind(this);
     this.state = {
       page: 1,
       movieTitles: [],
       isLoading: true,
+      error: null,
     };
     this.genres = [];
   }
 
   private async handleSearch(value?: string): Promise<void> {
     this.setState({ isLoading: true });
-    if (value && value.length > 0) {
-      const movieResponse = await this.apiClient.getMoviesByName(value);
-      this.getMovieCardData(movieResponse.results);
-    } else {
-      const movieResponse = await this.apiClient.getAllMovies();
-      this.getMovieCardData(movieResponse.results);
+    try {
+      if (value && value.length > 0) {
+        const movieResponse = await this.apiClient.getMoviesByName(value);
+        this.getMovieCardData(movieResponse.results);
+      } else {
+        const movieResponse = await this.apiClient.getAllMovies();
+        this.getMovieCardData(movieResponse.results);
+      }
+    } catch (error) {
+      this.setState({ error: error as Error });
     }
   }
 
@@ -105,21 +115,31 @@ export class TMDBMovieSearcher extends React.Component<
     return movieTitles.map((data) => <MovieCard {...data} key={data.id} />);
   }
 
+  private handleResetError() {
+    this.setState({ error: null });
+  }
+
   render() {
     return (
       <section {...this.props} className={classes.searcher}>
-        <SimpleContentSearcher
-          onSearch={this.handleSearch}
-          withWebStorage={{ key: this.STORAGE_KEY }}
-          placeholder="Enter a movie title"
-        />
-        <div className={classes.container}>
-          {this.state.isLoading ? (
-            <Loader />
-          ) : (
-            <div className={classes.content}>{this.getCardList()}</div>
-          )}
-        </div>
+        <ErrorBoundary
+          outError={this.state.error}
+          resetError={this.handleResetError}
+        >
+          <BugButton />
+          <SimpleContentSearcher
+            onSearch={this.handleSearch}
+            withWebStorage={{ key: this.STORAGE_KEY }}
+            placeholder="Enter a movie title"
+          />
+          <div className={classes.container}>
+            {this.state.isLoading ? (
+              <Loader />
+            ) : (
+              <div className={classes.content}>{this.getCardList()}</div>
+            )}
+          </div>
+        </ErrorBoundary>
       </section>
     );
   }

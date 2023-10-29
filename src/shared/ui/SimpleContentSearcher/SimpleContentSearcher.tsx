@@ -11,14 +11,7 @@ interface WebStorageOptions {
   key: string;
 }
 
-interface SimpleContentSearcherState {
-  searchText: string;
-}
-
-export class SimpleContentSearcher extends React.Component<
-  SimpleContentSearcherProps,
-  SimpleContentSearcherState
-> {
+export class SimpleContentSearcher extends React.Component<SimpleContentSearcherProps> {
   private searchInput: React.RefObject<SubmittableSearch>;
 
   constructor(props: SimpleContentSearcherProps) {

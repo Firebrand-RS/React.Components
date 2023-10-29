@@ -6,10 +6,6 @@ import { PageWrapper } from '../shared/ui/PageWrapper/PageWrapper';
 interface MainPageProps extends ComponentProps<'div'> {}
 
 export class MainPage extends React.Component<MainPageProps> {
-  componentDidMount(): void {
-    console.log(`mount`);
-  }
-
   render() {
     return (
       <main {...this.props} className={classes.page}>

@@ -28,8 +28,8 @@ export abstract class ApiClient {
         }
         throw new Error(`Request error [code: ${response.statusText}]`);
       })
-      .catch((error) => {
-        throw new Error(`Request error. ${error}`);
+      .catch((error: Error) => {
+        throw new Error(`${error.message}`);
       });
   }
 }
