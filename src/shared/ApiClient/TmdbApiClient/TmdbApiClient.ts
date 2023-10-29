@@ -1,6 +1,6 @@
 import { ApiClient } from '../ApiClient';
 import { QueryParams } from '../types';
-import { TmdbMovieResponse } from './types';
+import { TmdbMovieGenreResponse, TmdbMovieResponse } from './types';
 
 const API_BASE_PATH = 'https://api.themoviedb.org/3';
 const API_KEY = 'e413cac1dc826f91fb402836201d63bf';
@@ -21,6 +21,10 @@ class TmdbApiClient extends ApiClient {
     };
 
     return this.request<TmdbMovieResponse>('/search/movie', queryParams);
+  }
+
+  public getMoviesGenres() {
+    return this.request<TmdbMovieGenreResponse>('/genre/movie/list');
   }
 }
 

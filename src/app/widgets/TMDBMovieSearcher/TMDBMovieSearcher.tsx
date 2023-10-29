@@ -3,6 +3,12 @@ import classes from './TMDBMovieSearcher.module.scss';
 import { SimpleContentSearcher } from '../../../shared/ui/SimpleContentSearcher/SimpleContentSearcher';
 import { tmdbApiClient } from '../../../shared/ApiClient/TmdbApiClient/TmdbApiClient';
 import { MovieCard } from '../../../shared/ui/MovieCard/MovieCard';
+import {
+  MovieDTO,
+  MovieDTOWithGenreNames,
+  TmdbMovieGenre,
+} from '../../../shared/ApiClient/TmdbApiClient/types';
+import noPosterImage from '../../../shared/assets/no-poster-imiage.png';
 
 export interface SimpleMovieData {
   id: number;
@@ -15,7 +21,7 @@ export interface SimpleMovieData {
 interface TMDBMovieSearcherProps extends ComponentProps<'section'> {}
 interface TMDBMovieSearcherState {
   page: number;
-  movieTitles: MovieDTO[];
+  movieTitles: SimpleMovieData[];
 }
 
 export class TMDBMovieSearcher extends React.Component<
@@ -25,6 +31,8 @@ export class TMDBMovieSearcher extends React.Component<
   private apiClient = tmdbApiClient;
   private STORAGE_KEY = 'MOVIE_SEARCH_TEXT';
   private POSTER_BASE_URL = 'https://image.tmdb.org/t/p/original';
+  private NO_POSTER_URL = noPosterImage;
+  private genres: TmdbMovieGenre[] = [];
 
   constructor(props: TMDBMovieSearcherProps) {
     super(props);
@@ -33,18 +41,66 @@ export class TMDBMovieSearcher extends React.Component<
       page: 1,
       movieTitles: [],
     };
+    this.genres = [];
   }
 
-  async handleSearch(value?: string): Promise<void> {
+  private async handleSearch(value?: string): Promise<void> {
     if (value && value.length > 0) {
-      const response = await this.apiClient.getMoviesByName(value);
-      const movieTitles = response.results;
-      this.setState({ movieTitles });
-      console.log(response);
+      const movieResponse = await this.apiClient.getMoviesByName(value);
+      this.getMovieCardData(movieResponse.results);
     } else {
-      const response = await this.apiClient.getAllMovies();
-      console.log(response);
+      const movieResponse = await this.apiClient.getAllMovies();
+      this.getMovieCardData(movieResponse.results);
     }
+  }
+
+  private async getMovieCardData(movieData: MovieDTO[]): Promise<void> {
+    const genres = await this.getGenreList();
+    const movieDataWithGenres = this.mapMovieDataWithGenres(movieData, genres);
+    const cardData: SimpleMovieData[] = movieDataWithGenres.map((movie) => {
+      return {
+        id: movie.id,
+        poster: movie.poster_path
+          ? this.POSTER_BASE_URL + movie.poster_path
+          : this.NO_POSTER_URL,
+        title: movie.title,
+        genres: movie.genres,
+        rating: movie.vote_average,
+      };
+    });
+    console.log(cardData);
+    this.setState({ movieTitles: cardData });
+  }
+
+  private async getGenreList(): Promise<TmdbMovieGenre[]> {
+    if (this.genres.length === 0) {
+      const genreResponse = await this.apiClient.getMoviesGenres();
+      this.genres = genreResponse.genres;
+      return this.genres;
+    }
+    return this.genres;
+  }
+
+  private mapMovieDataWithGenres(
+    movies: MovieDTO[],
+    genres: TmdbMovieGenre[]
+  ): MovieDTOWithGenreNames[] {
+    console.log(movies);
+    return movies.map((movie) => {
+      const genreNames = movie.genre_ids.map((id) => {
+        const matchedGenre = genres.find((genre) => genre.id === id);
+        return matchedGenre ? matchedGenre.name : '';
+      });
+      return {
+        ...movie,
+        genres: genreNames,
+      };
+    });
+  }
+
+  private getCardList() {
+    const { movieTitles } = this.state;
+    return movieTitles.map((data) => <MovieCard {...data} key={data.id} />);
   }
 
   render() {
@@ -55,8 +111,7 @@ export class TMDBMovieSearcher extends React.Component<
           withWebStorage={{ key: this.STORAGE_KEY }}
           placeholder="Enter a movie title"
         />
-        <div className={classes.content}>
-        </div>
+        <div className={classes.content}>{this.getCardList()}</div>
       </section>
     );
   }
