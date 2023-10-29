@@ -9,6 +9,7 @@ import {
   TmdbMovieGenre,
 } from '../../../shared/ApiClient/TmdbApiClient/types';
 import noPosterImage from '../../../shared/assets/no-poster-imiage.png';
+import { Loader } from '../../../shared/ui/Loader/Loader';
 
 export interface SimpleMovieData {
   id: number;
@@ -22,6 +23,7 @@ interface TMDBMovieSearcherProps extends ComponentProps<'section'> {}
 interface TMDBMovieSearcherState {
   page: number;
   movieTitles: SimpleMovieData[];
+  isLoading: boolean;
 }
 
 export class TMDBMovieSearcher extends React.Component<
@@ -40,11 +42,13 @@ export class TMDBMovieSearcher extends React.Component<
     this.state = {
       page: 1,
       movieTitles: [],
+      isLoading: true,
     };
     this.genres = [];
   }
 
   private async handleSearch(value?: string): Promise<void> {
+    this.setState({ isLoading: true });
     if (value && value.length > 0) {
       const movieResponse = await this.apiClient.getMoviesByName(value);
       this.getMovieCardData(movieResponse.results);
@@ -68,8 +72,7 @@ export class TMDBMovieSearcher extends React.Component<
         rating: movie.vote_average,
       };
     });
-    console.log(cardData);
-    this.setState({ movieTitles: cardData });
+    this.setState({ movieTitles: cardData, isLoading: false });
   }
 
   private async getGenreList(): Promise<TmdbMovieGenre[]> {
@@ -85,7 +88,6 @@ export class TMDBMovieSearcher extends React.Component<
     movies: MovieDTO[],
     genres: TmdbMovieGenre[]
   ): MovieDTOWithGenreNames[] {
-    console.log(movies);
     return movies.map((movie) => {
       const genreNames = movie.genre_ids.map((id) => {
         const matchedGenre = genres.find((genre) => genre.id === id);
@@ -111,7 +113,13 @@ export class TMDBMovieSearcher extends React.Component<
           withWebStorage={{ key: this.STORAGE_KEY }}
           placeholder="Enter a movie title"
         />
-        <div className={classes.content}>{this.getCardList()}</div>
+        <div className={classes.container}>
+          {this.state.isLoading ? (
+            <Loader />
+          ) : (
+            <div className={classes.content}>{this.getCardList()}</div>
+          )}
+        </div>
       </section>
     );
   }

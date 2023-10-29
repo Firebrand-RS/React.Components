@@ -44,6 +44,7 @@
   aspect-ratio: 3 / 4;
   border-radius: 16px;
   overflow: hidden;
+  background-color: color-mix(in srgb, var(--main-color-1) 30%, transparent);
 
   &:hover {
     .overlay {
