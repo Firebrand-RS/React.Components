@@ -3,7 +3,14 @@ import classes from './TMDBMovieSearcher.module.scss';
 import { SimpleContentSearcher } from '../../../shared/ui/SimpleContentSearcher/SimpleContentSearcher';
 import { tmdbApiClient } from '../../../shared/ApiClient/TmdbApiClient/TmdbApiClient';
 import { MovieCard } from '../../../shared/ui/MovieCard/MovieCard';
-import { MovieDTO } from '../../../shared/ApiClient/TmdbApiClient/types';
+
+export interface SimpleMovieData {
+  id: number;
+  poster: string;
+  title: string;
+  genres: string[];
+  rating: number;
+}
 
 interface TMDBMovieSearcherProps extends ComponentProps<'section'> {}
 interface TMDBMovieSearcherState {
