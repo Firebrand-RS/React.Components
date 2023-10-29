@@ -1,18 +1,18 @@
 import React, { ComponentProps } from 'react';
 import classes from './TMDBMovieSearcher.module.scss';
-import { SimpleContentSearcher } from '../../../shared/ui/SimpleContentSearcher/SimpleContentSearcher';
-import { tmdbApiClient } from '../../../shared/ApiClient/TmdbApiClient/TmdbApiClient';
-import { MovieCard } from '../../../shared/ui/MovieCard/MovieCard';
+import { SimpleContentSearcher } from '../SimpleContentSearcher/SimpleContentSearcher';
+import { tmdbApiClient } from '../../ApiClient/TmdbApiClient/TmdbApiClient';
+import { MovieCard } from '../MovieCard/MovieCard';
+import { Loader } from '../Loader/Loader';
+import { ErrorBoundary } from '../ErrorBoundary/ErrorBoundary';
+import { BugButton } from '../BugButton/BugButton';
 import {
   MovieDTO,
   MovieDTOWithGenreNames,
   TmdbMovieGenre,
-} from '../../../shared/ApiClient/TmdbApiClient/types';
-import { Loader } from '../../../shared/ui/Loader/Loader';
-import { ErrorBoundary } from '../../../shared/ui/ErrorBoundary/ErrorBoundary';
-import { BugButton } from '../../../shared/ui/BugButton/BugButton';
+} from '../../ApiClient/TmdbApiClient/types';
 
-import noPosterImage from '../../../shared/assets/no-poster-imiage.png';
+import noPosterImage from '../../assets/no-poster-image.png';
 
 export interface SimpleMovieData {
   id: number;

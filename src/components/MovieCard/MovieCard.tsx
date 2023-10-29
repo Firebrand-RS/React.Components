@@ -1,6 +1,6 @@
 import React from 'react';
 import classes from './MovieCard.module.scss';
-import { SimpleMovieData } from '../../../app/widgets/TMDBMovieSearcher/TMDBMovieSearcher';
+import { SimpleMovieData } from '../TMDBMovieSearcher/TMDBMovieSearcher';
 
 interface MovieCardProps extends SimpleMovieData {}
 

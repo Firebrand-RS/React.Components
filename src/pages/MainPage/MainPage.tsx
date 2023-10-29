@@ -1,7 +1,7 @@
 import React, { ComponentProps } from 'react';
 import classes from './MainPage.module.scss';
-import { TMDBMovieSearcher } from '../app/widgets/TMDBMovieSearcher/TMDBMovieSearcher';
-import { PageWrapper } from '../shared/ui/PageWrapper/PageWrapper';
+import { TMDBMovieSearcher } from '../../components/TMDBMovieSearcher/TMDBMovieSearcher';
+import { PageWrapper } from '../../components/PageWrapper/PageWrapper';
 
 interface MainPageProps extends ComponentProps<'div'> {}
 
