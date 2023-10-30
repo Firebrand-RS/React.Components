@@ -1,0 +1,25 @@
+@use 'sass:color';
+
+.searcher {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  flex-grow: 1;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  border-radius: 16px;
+  background-color: color-mix(in srgb, var(--main-color-1) 30%, transparent);
+}
