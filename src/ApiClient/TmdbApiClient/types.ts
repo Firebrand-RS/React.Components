@@ -15,13 +15,20 @@ export interface MovieDTO {
   vote_count: number;
 }
 
-export interface MovieDTOWithGenreNames extends MovieDTO {
+export interface MovieDTOExtended extends MovieDTO {
   genres: string[];
 }
 
 export interface TmdbMovieResponse {
   page: number;
   results: MovieDTO[];
+  total_pages: number;
+  total_results: number;
+}
+
+export interface TmdbMovieResponseExtended extends TmdbMovieResponse {
+  page: number;
+  results: MovieDTOExtended[];
   total_pages: number;
   total_results: number;
 }

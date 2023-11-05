@@ -7,9 +7,8 @@ import { Loader } from '../Loader/Loader';
 import { ErrorBoundary } from '../ErrorBoundary/ErrorBoundary';
 import { BugButton } from '../BugButton/BugButton';
 import {
-  MovieDTO,
-  MovieDTOWithGenreNames,
-  TmdbMovieGenre,
+  MovieDTOExtended,
+  TmdbMovieResponseExtended,
 } from '../../ApiClient/TmdbApiClient/types';
 
 import noPosterImage from '../../assets/no-poster-image.png';
@@ -27,10 +26,12 @@ export interface SimpleMovieData {
 interface TMDBMovieSearcherProps extends ComponentProps<'section'> {}
 interface TMDBMovieSearcherState {
   page: number;
-  totalPages: number | null;
-  movieTitles: SimpleMovieData[];
+  responseData: {
+    totalPages: number | null;
+    movieTitles: SimpleMovieData[];
+    requestError: Error | null;
+  };
   isLoading: boolean;
-  error: Error | null;
 }
 
 export class TMDBMovieSearcher extends React.Component<
@@ -41,7 +42,6 @@ export class TMDBMovieSearcher extends React.Component<
   private STORAGE_KEY = 'MOVIE_SEARCH_TEXT';
   private POSTER_BASE_URL = 'https://image.tmdb.org/t/p/original';
   private NO_POSTER_URL = noPosterImage;
-  private genres: TmdbMovieGenre[] = [];
 
   constructor(props: TMDBMovieSearcherProps) {
     super(props);
@@ -50,12 +50,13 @@ export class TMDBMovieSearcher extends React.Component<
     this.handleNavigate = this.handleNavigate.bind(this);
     this.state = {
       page: 1,
-      totalPages: null,
-      movieTitles: [],
+      responseData: {
+        totalPages: null,
+        movieTitles: [],
+        requestError: null,
+      },
       isLoading: true,
-      error: null,
     };
-    this.genres = [];
   }
 
   private async handleSearch(value?: string): Promise<void> {
@@ -67,24 +68,38 @@ export class TMDBMovieSearcher extends React.Component<
           value,
           page.toString()
         );
-        this.setState({ totalPages: movieResponse.total_pages });
-        this.getMovieCardData(movieResponse.results);
+        this.setStateWithMovieCardData(movieResponse);
       } else {
         const movieResponse = await this.apiClient.getAllMovies(
           page.toString()
         );
-        this.setState({ totalPages: movieResponse.total_pages });
-        this.getMovieCardData(movieResponse.results);
+        this.setStateWithMovieCardData(movieResponse);
       }
     } catch (error) {
-      this.setState({ error: error as Error });
+      this.setState({
+        responseData: {
+          ...this.state.responseData,
+          requestError: error as Error,
+        },
+      });
     }
   }
 
-  private async getMovieCardData(movieData: MovieDTO[]): Promise<void> {
-    const genres = await this.getGenreList();
-    const movieDataWithGenres = this.mapMovieDataWithGenres(movieData, genres);
-    const cardData: SimpleMovieData[] = movieDataWithGenres.map((movie) => {
+  private setStateWithMovieCardData(response: TmdbMovieResponseExtended) {
+    const cardData = this.getMovieCardData(response.results);
+    const newState = {
+      responseData: {
+        ...this.state.responseData,
+        totalPages: response.total_pages,
+        movieTitles: cardData,
+      },
+      isLoading: false,
+    };
+    this.setState(newState);
+  }
+
+  private getMovieCardData(movieData: MovieDTOExtended[]): SimpleMovieData[] {
+    const cardData: SimpleMovieData[] = movieData.map((movie) => {
       return {
         id: movie.id,
         poster: movie.poster_path
@@ -95,41 +110,20 @@ export class TMDBMovieSearcher extends React.Component<
         rating: movie.vote_average,
       };
     });
-    this.setState({ movieTitles: cardData, isLoading: false });
-  }
-
-  private async getGenreList(): Promise<TmdbMovieGenre[]> {
-    if (this.genres.length === 0) {
-      const genreResponse = await this.apiClient.getMoviesGenres();
-      this.genres = genreResponse.genres;
-      return this.genres;
-    }
-    return this.genres;
-  }
-
-  private mapMovieDataWithGenres(
-    movies: MovieDTO[],
-    genres: TmdbMovieGenre[]
-  ): MovieDTOWithGenreNames[] {
-    return movies.map((movie) => {
-      const genreNames = movie.genre_ids.map((id) => {
-        const matchedGenre = genres.find((genre) => genre.id === id);
-        return matchedGenre ? matchedGenre.name : '';
-      });
-      return {
-        ...movie,
-        genres: genreNames,
-      };
-    });
+    return cardData;
   }
 
   private getCardList() {
-    const { movieTitles } = this.state;
+    const {
+      responseData: { movieTitles },
+    } = this.state;
     return movieTitles.map((data) => <MovieCard {...data} key={data.id} />);
   }
 
   private handleResetError() {
-    this.setState({ error: null });
+    this.setState({
+      responseData: { ...this.state.responseData, requestError: null },
+    });
   }
 
   private handleNavigate(value: string) {
@@ -137,10 +131,16 @@ export class TMDBMovieSearcher extends React.Component<
   }
 
   render() {
+    const {
+      page,
+      isLoading,
+      responseData: { totalPages, requestError },
+    } = this.state;
+
     return (
       <section {...this.props} className={classes.searcher}>
         <ErrorBoundary
-          outError={this.state.error}
+          outError={requestError}
           resetError={this.handleResetError}
         >
           <BugButton />
@@ -150,16 +150,16 @@ export class TMDBMovieSearcher extends React.Component<
             placeholder="Enter a movie title"
           />
           <div className={classes.container}>
-            {this.state.isLoading ? (
+            {isLoading ? (
               <Loader />
             ) : (
               <div className={classes.content}>{this.getCardList()}</div>
             )}
           </div>
-          {!this.state.isLoading && (
+          {!isLoading && (
             <Pagination
-              currentPage={this.state.page}
-              pageCount={this.state.totalPages}
+              currentPage={page}
+              pageCount={totalPages}
               buttonPairCount={2}
               Controls={<Button />}
               onNavigate={this.handleNavigate}
