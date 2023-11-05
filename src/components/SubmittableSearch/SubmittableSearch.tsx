@@ -4,6 +4,7 @@ import { Button } from '../Button/Button';
 
 interface SubmittableSearchProps {
   placeholder: string;
+  value: string;
   onSearch: (value: string) => void;
 }
 interface SubmittableSearchState {
@@ -17,7 +18,7 @@ export class SubmittableSearch extends React.Component<
   constructor(props: SubmittableSearchProps) {
     super(props);
     this.state = {
-      value: '',
+      value: props.value,
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
