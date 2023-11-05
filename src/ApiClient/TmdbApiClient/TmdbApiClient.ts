@@ -10,13 +10,17 @@ class TmdbApiClient extends ApiClient {
     super({ apiKey: API_KEY, basePath: API_BASE_PATH });
   }
 
-  public async getAllMovies() {
-    return this.request<TmdbMovieResponse>('/discover/movie');
+  public async getAllMovies(page: string) {
+    const queryParams: QueryParams = {
+      page,
+    };
+    return this.request<TmdbMovieResponse>('/discover/movie', queryParams);
   }
 
-  public async getMoviesByName(query: string) {
+  public async getMoviesByName(query: string, page: string) {
     const queryParams: QueryParams = {
       query,
+      page,
       include_adult: 'false',
     };
 

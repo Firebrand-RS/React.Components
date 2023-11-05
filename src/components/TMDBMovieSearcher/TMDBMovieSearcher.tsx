@@ -13,6 +13,8 @@ import {
 } from '../../ApiClient/TmdbApiClient/types';
 
 import noPosterImage from '../../assets/no-poster-image.png';
+import { Pagination } from '../Pagination/Pagination';
+import { Button } from '../Button/Button';
 
 export interface SimpleMovieData {
   id: number;
@@ -25,6 +27,7 @@ export interface SimpleMovieData {
 interface TMDBMovieSearcherProps extends ComponentProps<'section'> {}
 interface TMDBMovieSearcherState {
   page: number;
+  totalPages: number | null;
   movieTitles: SimpleMovieData[];
   isLoading: boolean;
   error: Error | null;
@@ -44,8 +47,10 @@ export class TMDBMovieSearcher extends React.Component<
     super(props);
     this.handleSearch = this.handleSearch.bind(this);
     this.handleResetError = this.handleResetError.bind(this);
+    this.handleNavigate = this.handleNavigate.bind(this);
     this.state = {
       page: 1,
+      totalPages: null,
       movieTitles: [],
       isLoading: true,
       error: null,
@@ -54,13 +59,21 @@ export class TMDBMovieSearcher extends React.Component<
   }
 
   private async handleSearch(value?: string): Promise<void> {
+    const { page } = this.state;
     this.setState({ isLoading: true });
     try {
       if (value && value.length > 0) {
-        const movieResponse = await this.apiClient.getMoviesByName(value);
+        const movieResponse = await this.apiClient.getMoviesByName(
+          value,
+          page.toString()
+        );
+        this.setState({ totalPages: movieResponse.total_pages });
         this.getMovieCardData(movieResponse.results);
       } else {
-        const movieResponse = await this.apiClient.getAllMovies();
+        const movieResponse = await this.apiClient.getAllMovies(
+          page.toString()
+        );
+        this.setState({ totalPages: movieResponse.total_pages });
         this.getMovieCardData(movieResponse.results);
       }
     } catch (error) {
@@ -119,6 +132,10 @@ export class TMDBMovieSearcher extends React.Component<
     this.setState({ error: null });
   }
 
+  private handleNavigate(value: string) {
+    this.setState({ page: Number(value) });
+  }
+
   render() {
     return (
       <section {...this.props} className={classes.searcher}>
@@ -139,6 +156,16 @@ export class TMDBMovieSearcher extends React.Component<
               <div className={classes.content}>{this.getCardList()}</div>
             )}
           </div>
+          {!this.state.isLoading && (
+            <Pagination
+              currentPage={this.state.page}
+              pageCount={this.state.totalPages}
+              buttonPairCount={2}
+              Controls={<Button />}
+              onNavigate={this.handleNavigate}
+              gap={8}
+            />
+          )}
         </ErrorBoundary>
       </section>
     );
