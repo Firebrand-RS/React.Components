@@ -2,7 +2,7 @@ import classes from './TMDBMovieSearcher.module.scss';
 
 import React, { useEffect, useState } from 'react';
 import { tmdbApiClient } from '../../ApiClient/TmdbApiClient/TmdbApiClient';
-import { MovieCard } from '../MovieCard/MovieCard';
+import { MovieCard, MovieCardProps } from '../MovieCard/MovieCard';
 import { Loader } from '../Loader/Loader';
 import { BugButton } from '../BugButton/BugButton';
 import {
@@ -14,17 +14,9 @@ import { SubmittableSearch } from '../SubmittableSearch/SubmittableSearch';
 
 import noPosterImage from '../../assets/no-poster-image.png';
 
-export interface SimpleMovieData {
-  id: number;
-  poster: string;
-  title: string;
-  genres: string[];
-  rating: number;
-}
-
 interface ResponseMovieData {
   totalPages: number | null;
-  movieTitles: SimpleMovieData[];
+  movieTitles: MovieCardProps[];
   requestError: Error | null;
 }
 
@@ -84,19 +76,16 @@ export function TMDBMovieSearcher({}) {
     setIsLoading(false);
   }
 
-  function mapMovieCardData(movieData: MovieDTOExtended[]): SimpleMovieData[] {
-    const cardData: SimpleMovieData[] = movieData.map((movie) => {
-      return {
-        id: movie.id,
-        poster: movie.poster_path
-          ? POSTER_BASE_URL + movie.poster_path
-          : NO_POSTER_URL,
-        title: movie.title,
-        genres: movie.genres,
-        rating: movie.vote_average,
-      };
-    });
-    return cardData;
+  function mapMovieCardData(movieData: MovieDTOExtended[]): MovieCardProps[] {
+    return movieData.map((movie) => ({
+      id: movie.id,
+      poster: movie.poster_path
+        ? POSTER_BASE_URL + movie.poster_path
+        : NO_POSTER_URL,
+      title: movie.title,
+      genres: movie.genres,
+      rating: movie.vote_average,
+    }));
   }
 
   function handleSearch(value: string) {
