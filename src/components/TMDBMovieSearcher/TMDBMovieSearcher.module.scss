@@ -7,19 +7,19 @@
   flex-grow: 1;
 }
 
-.content {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 16px;
-  width: 100%;
-  height: 100%;
-}
-
 .container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 28px;
   flex-grow: 1;
   border-radius: 16px;
   background-color: color-mix(in srgb, var(--main-color-1) 30%, transparent);
+}
+
+.error {
+  color: var(--accent-color-1);
+  font: (var(--main-font-title));
+  text-align: center;
 }

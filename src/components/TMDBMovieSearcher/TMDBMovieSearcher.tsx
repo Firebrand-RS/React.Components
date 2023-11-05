@@ -4,7 +4,6 @@ import { SimpleContentSearcher } from '../SimpleContentSearcher/SimpleContentSea
 import { tmdbApiClient } from '../../ApiClient/TmdbApiClient/TmdbApiClient';
 import { MovieCard } from '../MovieCard/MovieCard';
 import { Loader } from '../Loader/Loader';
-import { ErrorBoundary } from '../ErrorBoundary/ErrorBoundary';
 import { BugButton } from '../BugButton/BugButton';
 import {
   MovieDTOExtended,
@@ -12,8 +11,7 @@ import {
 } from '../../ApiClient/TmdbApiClient/types';
 
 import noPosterImage from '../../assets/no-poster-image.png';
-import { Pagination } from '../Pagination/Pagination';
-import { Button } from '../Button/Button';
+import Results from '../Results/Results';
 
 export interface SimpleMovieData {
   id: number;
@@ -85,8 +83,8 @@ export class TMDBMovieSearcher extends React.Component<
     }
   }
 
-  private setStateWithMovieCardData(response: TmdbMovieResponseExtended) {
-    const cardData = this.getMovieCardData(response.results);
+  private setStateWithMovieCardData(response: TmdbMovieResponseExtended): void {
+    const cardData = this.mapMovieCardData(response.results);
     const newState = {
       responseData: {
         ...this.state.responseData,
@@ -98,7 +96,7 @@ export class TMDBMovieSearcher extends React.Component<
     this.setState(newState);
   }
 
-  private getMovieCardData(movieData: MovieDTOExtended[]): SimpleMovieData[] {
+  private mapMovieCardData(movieData: MovieDTOExtended[]): SimpleMovieData[] {
     const cardData: SimpleMovieData[] = movieData.map((movie) => {
       return {
         id: movie.id,
@@ -113,14 +111,14 @@ export class TMDBMovieSearcher extends React.Component<
     return cardData;
   }
 
-  private getCardList() {
+  private getCardList(): JSX.Element[] {
     const {
       responseData: { movieTitles },
     } = this.state;
     return movieTitles.map((data) => <MovieCard {...data} key={data.id} />);
   }
 
-  private handleResetError() {
+  private handleResetError(): void {
     this.setState({
       responseData: { ...this.state.responseData, requestError: null },
     });
@@ -130,43 +128,43 @@ export class TMDBMovieSearcher extends React.Component<
     this.setState({ page: Number(value) });
   }
 
-  render() {
+  private showResults(): JSX.Element {
     const {
       page,
       isLoading,
       responseData: { totalPages, requestError },
     } = this.state;
 
+    return requestError ? (
+      <div className={classes.error}>
+        <p>Something went wrong</p>
+        <p>
+          {requestError.name}: {requestError.message}
+        </p>
+      </div>
+    ) : isLoading ? (
+      <Loader />
+    ) : (
+      <Results
+        page={page}
+        totalPages={totalPages}
+        onNavigate={this.handleNavigate}
+      >
+        {this.getCardList()}
+      </Results>
+    );
+  }
+
+  render() {
     return (
       <section {...this.props} className={classes.searcher}>
-        <ErrorBoundary
-          outError={requestError}
-          resetError={this.handleResetError}
-        >
-          <BugButton />
-          <SimpleContentSearcher
-            onSearch={this.handleSearch}
-            withWebStorage={{ key: this.STORAGE_KEY }}
-            placeholder="Enter a movie title"
-          />
-          <div className={classes.container}>
-            {isLoading ? (
-              <Loader />
-            ) : (
-              <div className={classes.content}>{this.getCardList()}</div>
-            )}
-          </div>
-          {!isLoading && (
-            <Pagination
-              currentPage={page}
-              pageCount={totalPages}
-              buttonPairCount={2}
-              Controls={<Button />}
-              onNavigate={this.handleNavigate}
-              gap={8}
-            />
-          )}
-        </ErrorBoundary>
+        <BugButton />
+        <SimpleContentSearcher
+          onSearch={this.handleSearch}
+          withWebStorage={{ key: this.STORAGE_KEY }}
+          placeholder="Enter a movie title"
+        />
+        <div className={classes.container}>{this.showResults()}</div>
       </section>
     );
   }
