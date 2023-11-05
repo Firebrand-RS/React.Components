@@ -1,30 +1,21 @@
-import React from 'react';
 import classes from './Pagination.module.scss';
+
+import React, { AllHTMLAttributes } from 'react';
 import { Button } from '../Button/Button';
 
 interface PaginationProps {
   currentPage: number;
-  pageCount: number | null | undefined;
+  pageCount: number | null;
   buttonPairCount: number;
   Controls: React.ReactElement<React.DOMAttributes<HTMLButtonElement>>;
   gap?: number;
   onNavigate: (value: string) => void;
 }
 
-export class Pagination extends React.Component<PaginationProps> {
-  constructor(props: PaginationProps) {
-    super(props);
-    this.handleNavigate = this.handleNavigate.bind(this);
-    this.handlePrev = this.handlePrev.bind(this);
-    this.handleNext = this.handleNext.bind(this);
-    this.state = {
-      currentPage: this.props.currentPage,
-    };
-  }
-
-  private generatePageNumbers(): number[] {
-    const { currentPage, buttonPairCount } = this.props;
-    let { pageCount } = this.props;
+export function Pagination(props: PaginationProps) {
+  function generatePageNumbers(): number[] {
+    const { currentPage, buttonPairCount } = props;
+    let { pageCount } = props;
     if (!pageCount || pageCount < 0) {
       pageCount = 0;
     }
@@ -56,20 +47,7 @@ export class Pagination extends React.Component<PaginationProps> {
     return buttonNumbers;
   }
 
-  private generateButtons(): React.ReactNode {
-    const { Controls } = this.props;
-    const pageNumbers = this.generatePageNumbers();
-    return pageNumbers.map((number, index) => {
-      const Cloned = React.cloneElement(Controls, {
-        children: number,
-        key: index,
-        onClick: this.handleNavigate,
-      });
-      return Cloned;
-    });
-  }
-
-  private handleNavigate(evt: React.MouseEvent<HTMLButtonElement>) {
+  function handleNavigate(evt: React.MouseEvent<HTMLButtonElement>) {
     const { target } = evt;
     const isButton = target instanceof HTMLButtonElement;
     if (!isButton) {
@@ -79,28 +57,50 @@ export class Pagination extends React.Component<PaginationProps> {
     if (!textValue) {
       return;
     }
-    this.props.onNavigate(textValue);
+    props.onNavigate(textValue);
   }
 
-  private handlePrev() {
-    const newPageNumber = this.props.currentPage - 1;
-    this.props.onNavigate(newPageNumber.toString());
+  function handlePrev(): void {
+    const newPageNumber = props.currentPage - 1;
+    props.onNavigate(newPageNumber.toString());
   }
 
-  private handleNext() {
-    const newPageNumber = this.props.currentPage + 1;
-    this.props.onNavigate(newPageNumber.toString());
+  function handleNext(): void {
+    const newPageNumber = props.currentPage + 1;
+    props.onNavigate(newPageNumber.toString());
   }
 
-  render() {
-    const { gap } = this.props;
-    const buttons = this.generateButtons();
-    return (
-      <div className={classes.pagination} style={gap ? { gap } : {}}>
-        <Button onClick={this.handlePrev}>{'<'}</Button>
-        {buttons}
-        <Button onClick={this.handleNext}>{'>'}</Button>
-      </div>
-    );
+  function generateButtons(): React.ReactNode {
+    const { Controls, currentPage } = props;
+    const pageNumbers = generatePageNumbers();
+    return pageNumbers.map((number, index) => {
+      const Cloned = React.cloneElement<AllHTMLAttributes<HTMLButtonElement>>(
+        Controls,
+        {
+          children: number,
+          key: index,
+          onClick: handleNavigate,
+          disabled: currentPage === number,
+        }
+      );
+      return Cloned;
+    });
   }
+
+  const { gap, currentPage, pageCount } = props;
+  const buttons = generateButtons();
+  return (
+    <div className={classes.pagination} style={gap ? { gap } : {}}>
+      <Button onClick={handlePrev} disabled={currentPage <= 1}>
+        {'<'}
+      </Button>
+      {buttons}
+      <Button
+        onClick={handleNext}
+        disabled={pageCount !== null && currentPage >= pageCount}
+      >
+        {'>'}
+      </Button>
+    </div>
+  );
 }

@@ -18,5 +18,6 @@
 
   &:disabled {
     filter: brightness(0.7) saturate(0.7);
+    pointer-events: none;
   }
 }
