@@ -1,6 +1,7 @@
-import React, { SyntheticEvent, useState } from 'react';
+import React, { SyntheticEvent } from 'react';
 import classes from './SubmittableSearch.module.scss';
 import { Button } from '../Button/Button';
+import { useInput } from '../../hooks/useInput';
 
 interface SubmittableSearchProps {
   placeholder: string;
@@ -13,12 +14,7 @@ export function SubmittableSearch({
   onSearch,
   placeholder,
 }: SubmittableSearchProps) {
-  const [value, setValue] = useState(valueProp);
-
-  function handleChange(evt: React.ChangeEvent<HTMLInputElement>): void {
-    const { target } = evt;
-    setValue(target.value);
-  }
+  const [value, onChange] = useInput(valueProp);
 
   function handleSubmit(evt: SyntheticEvent): void {
     evt.preventDefault();
@@ -32,7 +28,7 @@ export function SubmittableSearch({
         type="search"
         name="search-field"
         placeholder={placeholder}
-        onChange={handleChange}
+        onChange={onChange}
         value={value}
       />
       <Button type="submit">Search</Button>
