@@ -1,9 +1,17 @@
-.content {
+.results {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 16px;
   width: 100%;
   height: 100%;
+}
+
+.resultswrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 28px;
 }
 
 .noresults {

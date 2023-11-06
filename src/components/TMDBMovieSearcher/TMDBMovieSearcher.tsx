@@ -11,8 +11,10 @@ import {
 } from '../../ApiClient/TmdbApiClient/types';
 import Results from '../Results/Results';
 import { SubmittableSearch } from '../SubmittableSearch/SubmittableSearch';
+import MovieDetails from '../MovieDetails/MovieDetails';
 
 import noPosterImage from '../../assets/no-poster-image.png';
+import { detailsMock } from './mock';
 
 interface ResponseMovieData {
   totalPages: number | null;
@@ -130,7 +132,12 @@ export function TMDBMovieSearcher({}) {
     ) : isLoading ? (
       <Loader />
     ) : (
-      <Results page={page} totalPages={totalPages} onNavigate={handleNavigate}>
+      <Results
+        page={page}
+        totalPages={totalPages}
+        onNavigate={handleNavigate}
+        className={classes.wrapper}
+      >
         {getCardList()}
       </Results>
     );
@@ -144,7 +151,10 @@ export function TMDBMovieSearcher({}) {
         onSearch={handleSearch}
         value={storedQuery}
       />
-      <div className={classes.container}>{showResults()}</div>
+      <div className={classes.container}>
+        {showResults()}
+        <MovieDetails className={classes.details} {...detailsMock} />
+      </div>
     </section>
   );
 }
