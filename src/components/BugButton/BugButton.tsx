@@ -1,38 +1,32 @@
-import React, { ComponentProps } from 'react';
 import classes from './BugButton.module.scss';
+
+import React, { ComponentProps, useState } from 'react';
 import { Button } from '../Button/Button';
 
 interface BugButtonProps extends ComponentProps<'button'> {}
-interface BugButtonState {
-  hasError: boolean;
-}
 
-export class BugButton extends React.Component<BugButtonProps, BugButtonState> {
-  constructor(props: BugButtonProps) {
-    super(props);
-    this.handleThrowError = this.handleThrowError.bind(this);
-    this.state = {
-      hasError: false,
-    };
+export function BugButton({ className, ...props }: BugButtonProps) {
+  const [hasError, setHasError] = useState(false);
+
+  throwError();
+
+  function handleThrowError(): void {
+    setHasError(true);
   }
 
-  private handleThrowError(): void {
-    this.setState({
-      hasError: true,
-    });
-  }
-
-  componentDidUpdate(): void {
-    if (this.state.hasError) {
-      throw new Error('Bug button error');
+  function throwError(): void {
+    if (hasError) {
+      throw new Error('BugButton error');
     }
   }
 
-  render() {
-    return (
-      <Button className={classes.bugbutton} onClick={this.handleThrowError}>
-        Throw error
-      </Button>
-    );
-  }
+  return (
+    <Button
+      {...props}
+      className={[classes.bugbutton, className].join(' ')}
+      onClick={handleThrowError}
+    >
+      Throw error
+    </Button>
+  );
 }
