@@ -34,12 +34,15 @@ export function TMDBMovieSearcher({}) {
     requestError: null,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const storedQuery = getValueFromWebStorage(STORAGE_KEY);
 
   useEffect(() => {
-    const storageValue = getValueFromWebStorage(STORAGE_KEY);
-    setQuery(storageValue);
-    fetchMovieData(query);
-  }, [query]);
+    setQuery(storedQuery);
+  }, []);
+
+  useEffect(() => {
+    query !== null && fetchMovieData(query);
+  }, [query, page]);
 
   async function fetchMovieData(value: string | null): Promise<void> {
     setIsLoading(true);
@@ -139,7 +142,7 @@ export function TMDBMovieSearcher({}) {
       <SubmittableSearch
         placeholder={'Enter a movie title'}
         onSearch={handleSearch}
-        value={getValueFromWebStorage(STORAGE_KEY)}
+        value={storedQuery}
       />
       <div className={classes.container}>{showResults()}</div>
     </section>
