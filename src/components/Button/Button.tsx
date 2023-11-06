@@ -1,20 +1,15 @@
-import React, { ComponentProps } from 'react';
 import classes from './Button.module.scss';
+
+import React, { ComponentProps } from 'react';
 
 interface ButtonProps extends ComponentProps<'button'> {}
 
-export class Button extends React.Component<ButtonProps> {
-  render() {
-    const { type = 'button', ...props } = this.props;
-
-    return (
-      <button
-        {...props}
-        className={[classes.button, props.className].join(' ')}
-        type={type}
-      >
-        {this.props.children}
-      </button>
-    );
-  }
+export function Button({ type = 'button', className, ...props }: ButtonProps) {
+  return (
+    <button
+      {...props}
+      className={[classes.button, className].join(' ')}
+      type={type}
+    ></button>
+  );
 }
