@@ -1,21 +1,20 @@
-import React, { ComponentProps } from 'react';
 import './Loader.scss';
+
+import React, { ComponentProps } from 'react';
 
 interface LoaderProps extends ComponentProps<'div'> {}
 
-export class Loader extends React.Component<LoaderProps> {
-  render() {
-    return (
-      <div className="lds-roller">
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-      </div>
-    );
-  }
+export function Loader({ className, ...props }: LoaderProps) {
+  return (
+    <div {...props} className={['lds-roller', className].join(' ')}>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+  );
 }
