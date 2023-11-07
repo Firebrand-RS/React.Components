@@ -1,8 +1,8 @@
 import classes from './MovieCard.module.scss';
 
-import React from 'react';
+import React, { ComponentProps } from 'react';
 
-export interface MovieCardProps {
+export interface MovieCardProps extends Omit<ComponentProps<'div'>, 'id'> {
   id: number;
   poster: string;
   title: string;
@@ -10,9 +10,16 @@ export interface MovieCardProps {
   rating: number;
 }
 
-export function MovieCard({ poster, title, genres, rating }: MovieCardProps) {
+export function MovieCard({
+  id,
+  poster,
+  title,
+  genres,
+  rating,
+  ...props
+}: MovieCardProps) {
   return (
-    <div className={classes.card}>
+    <div {...props} id={id.toString()} className={classes.card}>
       <img
         className={classes.poster}
         src={poster}

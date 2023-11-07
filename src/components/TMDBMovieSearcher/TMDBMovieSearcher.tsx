@@ -1,6 +1,7 @@
 import classes from './TMDBMovieSearcher.module.scss';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { tmdbApiClient } from '../../ApiClient/TmdbApiClient/TmdbApiClient';
 import { MovieCard, MovieCardProps } from '../MovieCard/MovieCard';
 import { Loader } from '../Loader/Loader';
@@ -11,10 +12,8 @@ import {
 } from '../../ApiClient/TmdbApiClient/types';
 import Results from '../Results/Results';
 import { SubmittableSearch } from '../SubmittableSearch/SubmittableSearch';
-import MovieDetails from '../MovieDetails/MovieDetails';
 
 import noPosterImage from '../../assets/no-poster-image.png';
-import { detailsMock } from './mock';
 
 interface ResponseMovieData {
   totalPages: number | null;
@@ -36,6 +35,10 @@ export function TMDBMovieSearcher({}) {
     requestError: null,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [showDetails, setShowDetails] = useState(false);
+  const resultsContainerRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+
   const storedQuery = getValueFromWebStorage(STORAGE_KEY);
 
   useEffect(() => {
@@ -45,6 +48,43 @@ export function TMDBMovieSearcher({}) {
   useEffect(() => {
     query !== null && fetchMovieData(query);
   }, [query, page]);
+
+  useEffect(() => {
+    if (!resultsContainerRef.current) {
+      return;
+    }
+
+    if (!showDetails) {
+      return;
+    }
+
+    const { current: container } = resultsContainerRef;
+    const closeOverlay = createCloseOverlay(container);
+
+    closeOverlay.addEventListener('click', hideDetails);
+    container.append(closeOverlay);
+
+    function createCloseOverlay(parent: HTMLElement): HTMLDivElement {
+      const top = parent.offsetTop;
+      const height = parent.clientHeight;
+
+      const overlay = document.createElement('div');
+      overlay.classList.add(classes.background);
+      overlay.style.top = `${top}px`;
+      overlay.style.height = `${height}px`;
+      return overlay;
+    }
+
+    function hideDetails(): void {
+      navigate('/');
+      setShowDetails(false);
+    }
+
+    return () => {
+      closeOverlay.removeEventListener('click', hideDetails);
+      closeOverlay.remove();
+    };
+  }, [showDetails]);
 
   async function fetchMovieData(value: string | null): Promise<void> {
     setIsLoading(true);
@@ -114,9 +154,17 @@ export function TMDBMovieSearcher({}) {
     setPage(Number(value));
   }
 
+  function handleCardClick() {
+    setShowDetails(true);
+  }
+
   function getCardList(): JSX.Element[] {
     const { movieTitles } = responseData;
-    return movieTitles.map((data) => <MovieCard {...data} key={data.id} />);
+    return movieTitles.map((data) => (
+      <Link to={`tmdb-searcher/${data.id}`} key={data.id}>
+        <MovieCard {...data} onClick={handleCardClick} />
+      </Link>
+    ));
   }
 
   function showResults(): JSX.Element {
@@ -151,9 +199,13 @@ export function TMDBMovieSearcher({}) {
         onSearch={handleSearch}
         value={storedQuery}
       />
-      <div className={classes.container}>
+      <div className={classes.container} ref={resultsContainerRef}>
         {showResults()}
-        <MovieDetails className={classes.details} {...detailsMock} />
+        {showDetails && (
+          <div className={classes.detailswrapper}>
+            <Outlet />
+          </div>
+        )}
       </div>
     </section>
   );

@@ -9,14 +9,42 @@
 
 .container {
   display: flex;
-  gap: 28px;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
   flex-grow: 1;
   border-radius: 16px;
   background-color: color-mix(in srgb, var(--main-color-1) 30%, transparent);
+
+  div:first-of-type {
+    margin: auto;
+  }
 }
 
 .error {
   color: var(--accent-color-1);
   font: (var(--main-font-title));
   text-align: center;
+}
+
+.wrapper {
+  flex-basis: 100px;
+  flex-grow: 2;
+}
+
+.detailswrapper {
+  position: relative;
+  flex-basis: 100px;
+  flex-grow: 1;
+  max-width: 380px;
+  height: 100%;
+}
+
+.background {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background-color: red;
+  z-index: 1;
+  opacity: 0;
 }
