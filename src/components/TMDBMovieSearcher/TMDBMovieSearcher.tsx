@@ -1,7 +1,7 @@
 import classes from './TMDBMovieSearcher.module.scss';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useNavigate, useSubmit } from 'react-router-dom';
 import { tmdbApiClient } from '../../ApiClient/TmdbApiClient/TmdbApiClient';
 import { MovieCard, MovieCardProps } from '../MovieCard/MovieCard';
 import { Loader } from '../Loader/Loader';
@@ -27,7 +27,9 @@ export function TMDBMovieSearcher({}) {
   const POSTER_BASE_URL = 'https://image.tmdb.org/t/p/original';
   const NO_POSTER_URL = noPosterImage;
 
-  const [page, setPage] = useState(1);
+  const pageParam = new URLSearchParams(location.search).get('page');
+  const [page, setPage] = useState(pageParam ? Number(pageParam) : 1);
+
   const [query, setQuery] = useState<string | null>(null);
   const [responseData, setResponseData] = useState<ResponseMovieData>({
     totalPages: null,
@@ -38,6 +40,7 @@ export function TMDBMovieSearcher({}) {
   const [showDetails, setShowDetails] = useState(false);
   const resultsContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const submit = useSubmit();
 
   const storedQuery = getValueFromWebStorage(STORAGE_KEY);
 
@@ -76,8 +79,10 @@ export function TMDBMovieSearcher({}) {
     }
 
     function hideDetails(): void {
-      navigate('/');
       setShowDetails(false);
+      const searchParams = new URLSearchParams();
+      searchParams.append('page', page.toString());
+      navigate(`/?${searchParams}`);
     }
 
     return () => {
@@ -152,6 +157,10 @@ export function TMDBMovieSearcher({}) {
 
   function handleNavigate(value: string) {
     setPage(Number(value));
+    const searchParams = new URLSearchParams();
+    searchParams.append('page', value);
+    console.log(searchParams.toString());
+    submit(searchParams);
   }
 
   function handleCardClick() {
@@ -160,11 +169,15 @@ export function TMDBMovieSearcher({}) {
 
   function getCardList(): JSX.Element[] {
     const { movieTitles } = responseData;
-    return movieTitles.map((data) => (
-      <Link to={`tmdb-searcher/${data.id}`} key={data.id}>
-        <MovieCard {...data} onClick={handleCardClick} />
-      </Link>
-    ));
+    return movieTitles.map((data) => {
+      const searchParams = new URLSearchParams();
+      searchParams.append('page', page.toString());
+      return (
+        <Link to={`tmdb-searcher/${data.id}?${searchParams}`} key={data.id}>
+          <MovieCard {...data} onClick={handleCardClick} />
+        </Link>
+      );
+    });
   }
 
   function showResults(): JSX.Element {
