@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import { tmdbApiClient } from '../../ApiClient/TmdbApiClient/TmdbApiClient';
 import { TmdbMovieDetailsResponse } from '../../ApiClient/TmdbApiClient/types';
 import { Loader } from '../Loader/Loader';
+import { NO_POSTER_URL, POSTER_BASE_URL } from '../TMDBMovieSearcher/consts';
 
 interface SimpleMovieDetails {
   title: string;
@@ -18,7 +19,6 @@ function MovieDetails() {
   const params = useParams<{ id: string }>();
   const [data, setData] = useState<SimpleMovieDetails>();
   const [isLoading, setIsLoading] = useState(true);
-  const POSTER_BASE_URL = 'https://image.tmdb.org/t/p/original';
 
   useEffect(() => {
     if (!params.id) {
@@ -53,7 +53,7 @@ function MovieDetails() {
     return {
       title,
       slogan: tagline,
-      poster: POSTER_BASE_URL + poster_path,
+      poster: poster_path ? POSTER_BASE_URL + poster_path : NO_POSTER_URL,
       description: overview,
       properties: [
         {

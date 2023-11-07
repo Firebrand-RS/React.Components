@@ -1,7 +1,8 @@
 import classes from './TMDBMovieSearcher.module.scss';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Link, Outlet, useNavigate, useSubmit } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { useUrlQuery } from '../../hooks/useUrlQuery';
 import { tmdbApiClient } from '../../ApiClient/TmdbApiClient/TmdbApiClient';
 import { MovieCard, MovieCardProps } from '../MovieCard/MovieCard';
 import { Loader } from '../Loader/Loader';
@@ -12,8 +13,7 @@ import {
 } from '../../ApiClient/TmdbApiClient/types';
 import Results from '../Results/Results';
 import { SubmittableSearch } from '../SubmittableSearch/SubmittableSearch';
-
-import noPosterImage from '../../assets/no-poster-image.png';
+import { NO_POSTER_URL, POSTER_BASE_URL, STORAGE_KEY } from './consts';
 
 interface ResponseMovieData {
   totalPages: number | null;
@@ -23,9 +23,6 @@ interface ResponseMovieData {
 
 export function TMDBMovieSearcher({}) {
   const apiClient = tmdbApiClient;
-  const STORAGE_KEY = 'MOVIE_SEARCH_TEXT';
-  const POSTER_BASE_URL = 'https://image.tmdb.org/t/p/original';
-  const NO_POSTER_URL = noPosterImage;
 
   const pageParam = new URLSearchParams(location.search).get('page');
   const [page, setPage] = useState(pageParam ? Number(pageParam) : 1);
@@ -40,12 +37,13 @@ export function TMDBMovieSearcher({}) {
   const [showDetails, setShowDetails] = useState(false);
   const resultsContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const submit = useSubmit();
+  const setUrlQuery = useUrlQuery();
 
   const storedQuery = getValueFromWebStorage(STORAGE_KEY);
 
   useEffect(() => {
     setQuery(storedQuery);
+    setUrlQuery([{ key: 'page', value: page.toString() }]);
   }, []);
 
   useEffect(() => {
@@ -157,10 +155,7 @@ export function TMDBMovieSearcher({}) {
 
   function handleNavigate(value: string) {
     setPage(Number(value));
-    const searchParams = new URLSearchParams();
-    searchParams.append('page', value);
-    console.log(searchParams.toString());
-    submit(searchParams);
+    setUrlQuery([{ key: 'page', value: value.toString() }]);
   }
 
   function handleCardClick() {
@@ -173,7 +168,7 @@ export function TMDBMovieSearcher({}) {
       const searchParams = new URLSearchParams();
       searchParams.append('page', page.toString());
       return (
-        <Link to={`tmdb-searcher/${data.id}?${searchParams}`} key={data.id}>
+        <Link to={`details/${data.id}?${searchParams}`} key={data.id}>
           <MovieCard {...data} onClick={handleCardClick} />
         </Link>
       );

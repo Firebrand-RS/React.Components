@@ -13,7 +13,7 @@ import MovieDetails from '../components/MovieDetails/MovieDetails';
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<MainPage />}>
-      <Route path="tmdb-searcher/:id" element={<MovieDetails />}></Route>
+      <Route path="details/:id" element={<MovieDetails />}></Route>
     </Route>
   )
 );
