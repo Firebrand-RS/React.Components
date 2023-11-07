@@ -3,6 +3,7 @@ import { QueryParams } from '../types';
 import {
   MovieDTO,
   MovieDTOExtended,
+  TmdbMovieDetailsResponse,
   TmdbMovieGenre,
   TmdbMovieGenreResponse,
   TmdbMovieResponse,
@@ -49,6 +50,13 @@ class TmdbApiClient extends ApiClient {
 
     const expandedResponse = await this.extendResponseByGenres(moviesResponse);
     return expandedResponse;
+  }
+
+  public async getMovieDetails(id: string): Promise<TmdbMovieDetailsResponse> {
+    const RESOURCE_PATH = `/movie/${id}`;
+    const moviesResponse =
+      await this.request<TmdbMovieDetailsResponse>(RESOURCE_PATH);
+    return moviesResponse;
   }
 
   private async extendResponseByGenres(moviesResponse: TmdbMovieResponse) {

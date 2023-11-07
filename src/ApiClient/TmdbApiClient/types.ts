@@ -41,3 +41,20 @@ export interface TmdbMovieGenre {
 export interface TmdbMovieGenreResponse {
   genres: TmdbMovieGenre[];
 }
+
+export interface TmdbMovieDetailsResponse {
+  id: number;
+  budget: number;
+  genres: { id: number; name: string }[];
+  original_language: string;
+  original_title: string;
+  overview: string;
+  poster_path: string;
+  runtime: string;
+  production_countries: { iso_3166_1: string; name: string }[];
+  release_date: string;
+  status: string;
+  tagline: string;
+  title: string;
+  vote_average: number;
+}
