@@ -1,0 +1,68 @@
+.details {
+  position: sticky;
+  z-index: 2;
+  top: 16px;
+  bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: calc(100vh - 16px * 2);
+  gap: 24px;
+  background-color: var(--main-color-1);
+  border-radius: 16px;
+  font: var(--main-font-text);
+  color: var(--main-color-2);
+  overflow: hidden;
+  box-shadow: 2px 2px 8px 0
+    color-mix(in srgb, var(--shadow-color) 50%, transparent);
+
+  .wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 20px;
+    overflow: auto;
+  }
+
+  .poster {
+    width: 100%;
+    align-self: center;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    object-position: bottom;
+  }
+
+  .heading {
+    text-align: center;
+    font: var(--main-font-title);
+  }
+
+  .title {
+    font-weight: bold;
+    font-size: 24px;
+  }
+
+  .slogan {
+    font-style: italic;
+    font-size: 20px;
+  }
+
+  .properties {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .group {
+    display: flex;
+    gap: 8px;
+  }
+
+  .term {
+    font-weight: bold;
+  }
+
+  div {
+    margin: auto;
+  }
+}

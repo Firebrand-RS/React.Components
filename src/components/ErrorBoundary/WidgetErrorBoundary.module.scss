@@ -1,0 +1,19 @@
+.container {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  flex-grow: 1;
+  border-radius: 16px;
+  background-color: color-mix(in srgb, var(--main-color-1) 30%, transparent);
+  color: var(--accent-color-1);
+  font: (var(--main-font-title));
+}
+
+.resetbutton {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}

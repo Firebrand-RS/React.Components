@@ -1,11 +1,27 @@
 import './styles/index.scss';
 
-function App() {
-  return (
-    <>
-      <h1>Hallo world</h1>
-    </>
-  );
+import React from 'react';
+import { MainPage } from '../pages/MainPage/MainPage';
+import {
+  Route,
+  RouterProvider,
+  createBrowserRouter,
+  createRoutesFromElements,
+} from 'react-router-dom';
+import MovieDetails from '../components/MovieDetails/MovieDetails';
+
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <Route path="/" element={<MainPage />}>
+      <Route path="details/:id" element={<MovieDetails />}></Route>
+    </Route>
+  )
+);
+
+export class App extends React.Component {
+  render() {
+    return <RouterProvider router={router} />;
+  }
 }
 
 export default App;
